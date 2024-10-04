@@ -11,6 +11,10 @@ const tripSchema=new mongoose.Schema({
     total_booked:Number,
     available_tickets:Number,
     price:Number,
+    seller:{
+        type:mongoose.Schema.ObjectId,
+        ref:'User'
+    },
     booked_by:[{
         type: mongoose.Schema.ObjectId,
         ref: 'User'

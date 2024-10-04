@@ -5,16 +5,19 @@ const User=require('./models/user.model')
 const express=require('express');
 const app=express();
 const cors=require('cors')
+const tripRouter=require('./routes/tripRouter');
+const userRouter = require('./routes/userRouter');
+const cookieParser=require('cookie-parser');
+const isLoggedIn = require('./middleware/helper/isLoggedIn');
 
 app.use(cors({
     origin:'http://localhost:5173',
     credentials:true
 }))
 app.use(express.json())
-const tripRouter=require('./middleware/tripRouter');
-const userRouter = require('./middleware/userRouter');
-const cookieParser=require('cookie-parser');
-const isLoggedIn = require('./middleware/helper/isLoggedIn');
+
+// app.use(express.static('assets/images'))
+
 app.use(cookieParser())
 const connectDB=async()=>{
     try{

@@ -8,6 +8,7 @@ const {body, validationResult, checkSchema} = require('express-validator')
 const { userRegisterValidationSchema } = require('../validations/registerSchema')
 const {userLoginValidationSchema} = require('../validations/loginSchema')
 const Trip = require('../models/trip.model')
+const path=require('path')
 userRouter.get('/',isLoggedIn, async (req, res)=>{
     const users=await User.find({})
     res.json(users)
@@ -34,7 +35,7 @@ userRouter.post('/register',checkSchema(userRegisterValidationSchema), async(req
         const savedUser=await user.save();
         console.log("Saved:", savedUser)
         
-        userDataForToken={userId:savedUser._id, username:savedUser.username }
+        userDataForToken={userId:savedUser._id, username:savedUser.username, role: savedUser.role }
         const token=jwt.sign(userDataForToken, process.env.SECRET)
         console.log(token)
         // const {email, name, username, booked_trips}=savedUser
@@ -87,7 +88,8 @@ userRouter.post('/login',checkSchema(userLoginValidationSchema),async(req, res)=
         if(passwordCorrect){
             const userData={
                 userId:user.id,
-                username:user.username
+                username:user.username,
+                role:user.role
             }   
             const token=jwt.sign(userData, process.env.SECRET)
             res.cookie('token', token)
@@ -147,4 +149,6 @@ userRouter.delete('/trips/:id', isLoggedIn, async (req, res)=>{
         res.status(400).json(err)
     }
 })
+
+
 module.exports=userRouter

@@ -1,8 +1,11 @@
 const express = require ('express')
 const tripRouter=express.Router()
 const Trip=require('../models/trip.model');
-const isLoggedIn = require('./helper/isLoggedIn');
+const isLoggedIn = require('../middleware/helper/isLoggedIn');
 const User = require('../models/user.model');
+const isSellerOrAdmin = require('../middleware/isSellerOrAdmin');
+const { checkSchema } = require('express-validator');
+const tripValidationSchema =require('../validations/tripSchema')
 
 tripRouter.get('/', async (req, res)=>{
     try{
@@ -26,11 +29,14 @@ tripRouter.get('/:id', async(req, res)=>{
     }
 })
 
-tripRouter.post('/', async (req, res)=>{
-    const tripObject=new Trip(req.body)
+tripRouter.post('/', isLoggedIn, isSellerOrAdmin, checkSchema(tripValidationSchema), async (req, res)=>{
+    const tripObject=new Trip({...req.body, seller:req.userId})
     try{
-        const savedObject=await tripObject.save()
-        res.json(savedObject)
+        const savedTrip=await tripObject.save()
+        const user=await User.findById(req.userId)
+        user.created_trips.push(savedTrip._id)
+        await user.save()
+        res.json(savedTrip)
     }catch(err){
         console.log(err)
         res.status(500).json(err)
