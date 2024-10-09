@@ -22,7 +22,7 @@ tripRouter.get('/:id', async(req, res)=>{
     console.log("params:", req.params)
     try{
         const tripId = req.params.id
-        const trip=await Trip.findById(tripId)
+        const trip=await Trip.findById(tripId).populate('booked_by') 
         res.json(trip)
     }catch(err){
         res.status(404).json("Not Found")

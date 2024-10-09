@@ -18,7 +18,9 @@ const userSchema=new mongoose.Schema({
     created_trips:[{
         type:mongoose.Schema.ObjectId,
         ref:'Trip'
-    }]
+    }],
+    org_name:String,
+    org_location:String,
 },{
     toJSON:{transform:function(doc, ret){
         ret.id=ret._id

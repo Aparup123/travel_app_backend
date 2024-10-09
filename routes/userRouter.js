@@ -53,7 +53,7 @@ userRouter.post('/register',checkSchema(userRegisterValidationSchema), async(req
 userRouter.get('/profile/',isLoggedIn, async(req, res)=>{
     console.log('inside profile')
     try{
-        const userData=await User.findById(req.userId).populate('booked_trips')
+        const userData=await User.findById(req.userId).populate('booked_trips').populate('created_trips')
         if(!userData) return res.status(401).json({
             error:'unauthorized',
             route:'/login'
