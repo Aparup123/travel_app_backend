@@ -7,10 +7,6 @@ const tripSchema=new mongoose.Schema({
     end_date: Date,
     location: String,
     total_capacity: Number,
-    total_booked:{
-        type:Number,
-        default:0
-    },
     price:Number,
     seller:{
         type:mongoose.Schema.ObjectId,

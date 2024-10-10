@@ -5,11 +5,12 @@ const isLoggedIn = require('../middleware/helper/isLoggedIn');
 const User = require('../models/user.model');
 const isSellerOrAdmin = require('../middleware/isSellerOrAdmin');
 const { checkSchema } = require('express-validator');
-const tripValidationSchema =require('../validations/tripSchema')
+const tripValidationSchema =require('../validations/tripSchema');
+const availableTickets = require('../utils/availableTickets');
 
 tripRouter.get('/', async (req, res)=>{
     try{
-        const trips=await Trip.find({});
+        const trips=await Trip.find({}).populate('booked_by');
         console.log('trips', trips)
         res.json(trips);
     }catch(err){
@@ -58,6 +59,9 @@ tripRouter.post('/book/:id',isLoggedIn, async (req, res)=>{
     try{
         const tripId=req.params.id
         var trip=await Trip.findById(tripId)
+        if(availableTickets(trip)==0){
+            return res.status(400).json("No tickets available")
+        }
         if(trip.booked_by.includes(req.userId)){
             return res.status(400).json("Trip already booked")
         }

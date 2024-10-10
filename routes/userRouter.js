@@ -81,7 +81,7 @@ userRouter.post('/login',checkSchema(userLoginValidationSchema),async(req, res)=
     }
 
     const {email, password}=req.body
-    const user=await User.findOne({email:email}).populate('booked_trips')
+    const user=await User.findOne({email:email}).populate('booked_trips').populate('created_trips')
 
     if(user){
         const passwordCorrect=await bcrypt.compare(password, user.password)
@@ -133,7 +133,7 @@ userRouter.delete('/trips/:id', isLoggedIn, async (req, res)=>{
         const user = await User.findById(userId)
         // The user can't cancel an unbooked trip
         if(!user.booked_trips.includes(tripId))
-            res.status(400).json("Trip is not booked")
+            return res.status(400).json("Trip is not booked")
         user.booked_trips = user.booked_trips.filter((id) => id != tripId)
         user.save()
         // Remove the user_id from trip's booked_by
