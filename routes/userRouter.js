@@ -72,6 +72,22 @@ userRouter.get('/profile/',isLoggedIn, async(req, res)=>{
     }
 })
 
+userRouter.get('/profile/:name', async(req, res)=>{
+    try{const profileName=req.params.name
+    const user=await User.findOne({username:profileName})
+    if(!user) return res.status(404).json("user not found")
+       
+    
+    const userData=user.toObject()  
+    delete userData.password
+    res.json(userData)  
+    console.log("sent successfully", userData)
+    }catch(err){
+        console.log(err)
+        return res.status(404).json("user not found")
+    }
+})
+
 userRouter.post('/login',checkSchema(userLoginValidationSchema),async(req, res)=>{
     // Validating the request
     const result=validationResult(req)

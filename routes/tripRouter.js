@@ -10,7 +10,7 @@ const availableTickets = require('../utils/availableTickets');
 
 tripRouter.get('/', async (req, res)=>{
     try{
-        const trips=await Trip.find({}).populate('booked_by');
+        const trips=await Trip.find({}).populate('booked_by').populate("seller");
         console.log('trips', trips)
         res.json(trips);
     }catch(err){
