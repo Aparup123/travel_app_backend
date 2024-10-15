@@ -23,7 +23,7 @@ tripRouter.get('/:id', async(req, res)=>{
     console.log("params:", req.params)
     try{
         const tripId = req.params.id
-        const trip=await Trip.findById(tripId).populate('booked_by') 
+        const trip=await Trip.findById(tripId).populate('booked_by').populate("seller") 
         res.json(trip)
     }catch(err){
         res.status(404).json("Not Found")
@@ -41,6 +41,56 @@ tripRouter.post('/', isLoggedIn, isSellerOrAdmin, checkSchema(tripValidationSche
     }catch(err){
         console.log(err)
         res.status(500).json(err)
+    }
+})
+
+tripRouter.put('/:id', isLoggedIn, isSellerOrAdmin, async(req, res)=>{
+    let newTrip=req.body
+    if(req.userId!=newTrip.seller._id) return res.status(401).json("You are not creator of this trip")
+    
+    try{
+        const trip=await Trip.findById(newTrip._id)
+        if(!trip) return res.status(404).json("Trip not found")
+        
+        if(trip._id) delete newTrip._id
+        const tripUpdateObject=newTrip
+        const updatedTrip=await Trip.findByIdAndUpdate(trip._id, tripUpdateObject, {new:true})
+        console.log(updatedTrip)
+        res.json(updatedTrip)
+    }catch(err){
+        console.log(err)
+        return res.status(505).json("Unable to update")
+    }
+    
+})
+
+tripRouter.delete('/:id', isLoggedIn, isSellerOrAdmin,  async(req, res)=>{
+    const tripId=req.params.id
+    
+    try{
+        const trip=await Trip.findById(tripId)
+
+        if(!trip) return res.status(404).json("Trip not found")
+
+        if(req.userId!=trip.seller) return res.status(401).json("You cant delete the trip")
+
+        const bookedByUsers=trip.booked_by
+        if(bookedByUsers.length>0){
+            bookedByUsers.forEach( async(userId)=>{
+                const user=await User.findById(userId)
+                if(user) {
+                    user.booked_trips=user.booked_trips.filter((trip_id)=>trip_id!=tripId)
+                    await user.save()
+                }
+            })
+        }
+        const deletedTrip=await Trip.findByIdAndDelete(tripId)
+        res.json({
+            msg:"successfully deleted",
+            trip:deletedTrip
+        })      
+    }catch(err){
+        return res.status(505).json("Couldn't delete")
     }
 })
 
