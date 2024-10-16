@@ -29,6 +29,8 @@ const connectDB=async()=>{
 }
 connectDB()
 
+// app.use(express.static(__dirname+'/dist'))
+
 app.use('/api/trips/',tripRouter)
 
 app.use('/api/users/', userRouter)

@@ -8,6 +8,7 @@ const tripSchema=new mongoose.Schema({
     location: String,
     total_capacity: Number,
     price:Number,
+    cover_image:String,
     seller:{
         type:mongoose.Schema.ObjectId,
         ref:'User'

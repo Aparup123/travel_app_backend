@@ -7,6 +7,9 @@ const isSellerOrAdmin = require('../middleware/isSellerOrAdmin');
 const { checkSchema } = require('express-validator');
 const tripValidationSchema =require('../validations/tripSchema');
 const availableTickets = require('../utils/availableTickets');
+const uploadTripImage  = require('../middleware/multer');
+const path=require('path')
+const uploadToCloudinary=require('../utils/cloudinary')
 
 tripRouter.get('/', async (req, res)=>{
     try{
@@ -91,6 +94,19 @@ tripRouter.delete('/:id', isLoggedIn, isSellerOrAdmin,  async(req, res)=>{
         })      
     }catch(err){
         return res.status(505).json("Couldn't delete")
+    }
+})
+
+tripRouter.post('/image', uploadTripImage.single('file'), async(req, res)=>{
+    console.log(req.file)
+    try{
+        if(req.file) {
+            const uploadResult=await uploadToCloudinary(req.file.path)
+            res.json(uploadResult)
+        }
+    }catch(err){
+        console.log(err)
+        return res.status(500).json(err)
     }
 })
 
