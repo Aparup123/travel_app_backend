@@ -9,6 +9,7 @@ const tripValidationSchema =require('../validations/tripSchema');
 const availableTickets = require('../utils/availableTickets');
 const uploadTripImage  = require('../middleware/multer');
 const path=require('path')
+const fs=require('fs')
 const uploadToCloudinary=require('../utils/cloudinary')
 
 tripRouter.get('/', async (req, res)=>{
@@ -97,11 +98,12 @@ tripRouter.delete('/:id', isLoggedIn, isSellerOrAdmin,  async(req, res)=>{
     }
 })
 
-tripRouter.post('/image', uploadTripImage.single('file'), async(req, res)=>{
+tripRouter.post('/image', isLoggedIn, isSellerOrAdmin, uploadTripImage.single('file'), async(req, res)=>{
     console.log(req.file)
     try{
         if(req.file) {
             const uploadResult=await uploadToCloudinary(req.file.path)
+            fs.unlinkSync(req.file.path)
             res.json(uploadResult)
         }
     }catch(err){
