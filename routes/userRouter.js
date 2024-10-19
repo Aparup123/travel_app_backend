@@ -9,6 +9,7 @@ const { userRegisterValidationSchema } = require('../validations/registerSchema'
 const {userLoginValidationSchema} = require('../validations/loginSchema')
 const Trip = require('../models/trip.model')
 const path=require('path')
+const {uploadTripImage, uploadUserImage} = require('../middleware/multer')
 userRouter.get('/',isLoggedIn, async (req, res)=>{
     const users=await User.find({})
     res.json(users)
@@ -69,6 +70,24 @@ userRouter.get('/profile/',isLoggedIn, async(req, res)=>{
             error:'unauthorized',
             route:'/login'
         })
+    }
+})
+
+userRouter.post('/profile/image/', isLoggedIn, uploadUserImage.single('file'), async (req, res)=>{
+    const userId=req.userId
+    try{
+        if(req.file) {
+            const uploadResult=await uploadToCloudinary(req.file.path)
+            console.log(uploadResult)
+            fs.unlinkSync(req.file.path)
+            const user=await User.findById(userId)
+            user.profile_picture={pid:uploadResult.public_id,url:uploadResult.secure_url}
+            const updatedUser=await user.save()
+            res.json(updatedUser)
+        }
+    }catch(err){
+        console.log(err)
+        return res.status(500).json(err)
     }
 })
 

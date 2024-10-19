@@ -7,10 +7,10 @@ const isSellerOrAdmin = require('../middleware/isSellerOrAdmin');
 const { checkSchema } = require('express-validator');
 const tripValidationSchema =require('../validations/tripSchema');
 const availableTickets = require('../utils/availableTickets');
-const uploadTripImage  = require('../middleware/multer');
+const {uploadTripImage}  = require('../middleware/multer');
 const path=require('path')
 const fs=require('fs')
-const uploadToCloudinary=require('../utils/cloudinary')
+const {uploadToCloudinary, deleteFromCloudinary}=require('../utils/cloudinary')
 
 tripRouter.get('/', async (req, res)=>{
     try{
@@ -76,8 +76,13 @@ tripRouter.delete('/:id', isLoggedIn, isSellerOrAdmin,  async(req, res)=>{
 
         if(!trip) return res.status(404).json("Trip not found")
 
-        if(req.userId!=trip.seller) return res.status(401).json("You cant delete the trip")
-
+        if(req.userId!=trip.seller) return res.status(401).json("You can't delete the trip")
+        
+        if(trip.cover_image && trip.cover_image.pid){const deleteResult=await deleteFromCloudinary(trip.cover_image.pid)
+        if(deleteResult.result!='ok') {
+            console.log("deleteResult:",deleteResult)
+            return res.status(500).json("Failed deleting trip image")
+        }}
         const bookedByUsers=trip.booked_by
         if(bookedByUsers.length>0){
             bookedByUsers.forEach( async(userId)=>{
@@ -103,6 +108,28 @@ tripRouter.post('/image', isLoggedIn, isSellerOrAdmin, uploadTripImage.single('f
     try{
         if(req.file) {
             const uploadResult=await uploadToCloudinary(req.file.path)
+            console.log(uploadResult)
+            fs.unlinkSync(req.file.path)
+            res.json(uploadResult)
+        }
+    }catch(err){
+        console.log(err)
+        return res.status(500).json(err)
+    }
+})
+
+tripRouter.put('/image/:id', isLoggedIn, isSellerOrAdmin, uploadTripImage.single('file'), async(req, res)=>{
+    console.log(req.file)
+    const tripId=req.params.id
+    try{
+        const trip=await Trip.findById(tripId)
+        if(trip.seller!=req.userId) return res.status(404).json("You are not creator of the trip")
+        if(req.file) {
+            const uploadResult=await uploadToCloudinary(req.file.path)
+            if(trip.cover_image && trip.cover_image.pid){
+                const deleteResult=await deleteFromCloudinary(trip.cover_image.pid)
+            }
+            console.log(uploadResult)
             fs.unlinkSync(req.file.path)
             res.json(uploadResult)
         }
@@ -123,7 +150,7 @@ tripRouter.post('/many', async(req, res)=>{
     }
 })
 
-tripRouter.post('/book/:id',isLoggedIn, async (req, res)=>{
+tripRouter.post('/book/:id', isLoggedIn, async (req, res)=>{
     try{
         const tripId=req.params.id
         var trip=await Trip.findById(tripId)

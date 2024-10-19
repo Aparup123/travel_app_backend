@@ -1,11 +1,15 @@
 const mongoose=require('mongoose')
-
+const imageSchema=new mongoose.Schema({
+    pid:String,
+    url:String
+})
 const userSchema=new mongoose.Schema({
     username:String,
     name: String,
     email:String,
     password:String,
     age:Number,
+    profile_picture:imageSchema,
     role:{
         type:String,
         default:'user',

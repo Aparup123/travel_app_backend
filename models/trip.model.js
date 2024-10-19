@@ -1,5 +1,9 @@
 const mongoose=require('mongoose');
 
+const imageSchema=new mongoose.Schema({
+    pid:String,
+    url:String
+})
 const tripSchema=new mongoose.Schema({
     title: String,
     description: String,
@@ -8,7 +12,7 @@ const tripSchema=new mongoose.Schema({
     location: String,
     total_capacity: Number,
     price:Number,
-    cover_image:String,
+    cover_image:imageSchema,
     seller:{
         type:mongoose.Schema.ObjectId,
         ref:'User'
