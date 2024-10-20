@@ -10,6 +10,8 @@ const {userLoginValidationSchema} = require('../validations/loginSchema')
 const Trip = require('../models/trip.model')
 const path=require('path')
 const {uploadTripImage, uploadUserImage} = require('../middleware/multer')
+const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinary')
+const fs=require('fs')
 userRouter.get('/',isLoggedIn, async (req, res)=>{
     const users=await User.find({})
     res.json(users)
@@ -81,6 +83,9 @@ userRouter.post('/profile/image/', isLoggedIn, uploadUserImage.single('file'), a
             console.log(uploadResult)
             fs.unlinkSync(req.file.path)
             const user=await User.findById(userId)
+            if(user&& user.profile_picture && user.profile_picture.pid){
+                const deleteResult=await deleteFromCloudinary(user.profile_picture.pid)
+            }
             user.profile_picture={pid:uploadResult.public_id,url:uploadResult.secure_url}
             const updatedUser=await user.save()
             res.json(updatedUser)
