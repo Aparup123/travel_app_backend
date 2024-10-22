@@ -45,7 +45,12 @@ userRouter.post('/register',checkSchema(userRegisterValidationSchema), async(req
         // const savedUserData={email, name, username, booked_trips}
         const userData=savedUser.toObject()
         delete userData.password
-        res.cookie('token', token)
+        res.cookie('token', token,{
+            httpOnly: true, 
+            secure: true,  
+            sameSite: 'none',
+        }
+        )
         res.json(userData)
     }catch(err){
         console.log(err)
@@ -132,7 +137,11 @@ userRouter.post('/login',checkSchema(userLoginValidationSchema),async(req, res)=
                 role:user.role
             }   
             const token=jwt.sign(userData, process.env.SECRET)
-            res.cookie('token', token)
+            res.cookie('token', token,{
+                httpOnly: true, 
+                secure: true,  
+                sameSite: 'none',
+            })
             const userDataForProfile=user.toObject()
             delete userDataForProfile.password
             res.json(userDataForProfile)
@@ -158,7 +167,11 @@ userRouter.post('/login',checkSchema(userLoginValidationSchema),async(req, res)=
 })
 
 userRouter.post('/logout', async (req, res)=>{
-    res.cookie('token', '', { sameSite: 'None', secure: true })
+    res.cookie('token', '', {
+        httpOnly: true, 
+        secure: true,  
+        sameSite: 'none',
+    })
     res.json('logged out')
 })
 
