@@ -10,8 +10,10 @@ const userRouter = require('./routes/userRouter');
 const cookieParser=require('cookie-parser');
 const isLoggedIn = require('./middleware/helper/isLoggedIn');
 
+const mongo_url=process.env.ENVIROMENT=="production"?process.env.MONGO_URL_PRODUCTION:process.env.MONGO_URL_DEV
+const client_url=process.env.ENVIROMENT=="production"?"http://localhost:5173":process.env.CLIENT_URL
 app.use(cors({
-    origin:'http://localhost:5173',
+    origin:client_url,
     credentials:true
 }))
 app.use(express.json())
@@ -21,8 +23,8 @@ app.use(express.json())
 app.use(cookieParser())
 const connectDB=async()=>{
     try{
-        await mongoose.connect(process.env.MONGO_URL_DEV);
-        console.log("Database connected successfuly")
+        await mongoose.connect(mongo_url);
+        console.log("Database connected successfully")
     }catch(err){
         console.log("Failed to connect DB\n", err)
     }
@@ -55,6 +57,8 @@ app.get('/login', async(req, res)=>{
 
 })
 
-
+app.get('/', (req, res)=>{
+    res.send("This is a backend api.")
+})
 
 module.exports=app
