@@ -10,7 +10,9 @@ const userRouter = require('./routes/userRouter');
 const cookieParser=require('cookie-parser');
 const isLoggedIn = require('./middleware/helper/isLoggedIn');
 
+const morgan = require('morgan');
 
+app.use(morgan('dev'));
 
 app.use(cors({
     origin:"https://travel-x-theta.vercel.app",
