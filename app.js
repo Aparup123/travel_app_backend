@@ -15,7 +15,7 @@ const morgan = require('morgan');
 app.use(morgan('dev'));
 
 app.use(cors({
-    origin:"https://travel-x-theta.vercel.app",
+    origin:process.env.CLIENT_URL,
     credentials:true
 }))
 app.use(express.json())
@@ -25,7 +25,7 @@ app.use(express.json())
 app.use(cookieParser())
 const connectDB=async()=>{
     try{
-        await mongoose.connect("mongodb+srv://aparuproychowdhury:BbPAcvJd7FRbO6ma@cluster0.ywhootz.mongodb.net/travel-x");
+        await mongoose.connect(process.env.MONGO_URL);
         console.log("Database connected successfully")
     }catch(err){
         console.log("Failed to connect DB\n", err)
