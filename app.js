@@ -10,10 +10,10 @@ const userRouter = require('./routes/userRouter');
 const cookieParser=require('cookie-parser');
 const isLoggedIn = require('./middleware/helper/isLoggedIn');
 
-const mongo_url=process.env.ENVIROMENT=="production"?process.env.MONGO_URL_PRODUCTION:process.env.MONGO_URL_DEV
-const client_url=process.env.ENVIROMENT=="production"?process.env.CLIENT_URL:"http://localhost:5173"
+
+
 app.use(cors({
-    origin:client_url,
+    origin:"https://travel-x-theta.vercel.app",
     credentials:true
 }))
 app.use(express.json())
@@ -23,7 +23,7 @@ app.use(express.json())
 app.use(cookieParser())
 const connectDB=async()=>{
     try{
-        await mongoose.connect(mongo_url);
+        await mongoose.connect("mongodb+srv://aparuproychowdhury:BbPAcvJd7FRbO6ma@cluster0.ywhootz.mongodb.net/travel-x");
         console.log("Database connected successfully")
     }catch(err){
         console.log("Failed to connect DB\n", err)
