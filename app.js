@@ -11,7 +11,7 @@ const cookieParser=require('cookie-parser');
 const isLoggedIn = require('./middleware/helper/isLoggedIn');
 
 const mongo_url=process.env.ENVIROMENT=="production"?process.env.MONGO_URL_PRODUCTION:process.env.MONGO_URL_DEV
-const client_url=process.env.ENVIROMENT=="production"?"http://localhost:5173":process.env.CLIENT_URL
+const client_url=process.env.ENVIROMENT=="production"?process.env.CLIENT_URL:"http://localhost:5173"
 app.use(cors({
     origin:client_url,
     credentials:true
