@@ -14,10 +14,23 @@ const morgan = require('morgan');
 
 app.use(morgan('dev'));
 
-app.use(cors({
-    origin:process.env.CLIENT_URL,
-    credentials:true
-}))
+// app.use(cors({
+//     origins:[process.env.CLIENT_URL, 'http://localhost:5173'],
+//     credentials:true
+// }))
+
+var whitelist = [process.env.CLIENT_URL, 'http://localhost:5173']
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials:true
+}
+app.use(cors(corsOptions))
 app.use(express.json())
 
 // app.use(express.static('assets/images'))
